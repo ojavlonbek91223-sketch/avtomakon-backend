@@ -1,0 +1,1 @@
+DELETE FROM users WHERE phone = '+998887360806';

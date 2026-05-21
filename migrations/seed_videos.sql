@@ -1,0 +1,20 @@
+INSERT INTO long_videos (author_id, title, description, video_url, thumbnail_url, duration_sec, category, views_count, reactions_count, comments_count)
+VALUES
+    ('11111111-1111-1111-1111-111111111111',
+     'Mercedes-AMG GT 63 — kuzov boyash jarayoni',
+     'Avtomobil kuzovini noldan boyash. Materiallar, asboblar, jarayon. 5 yillik tajriba bilan ulashaman.',
+     'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+     'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800',
+     1820, 'boyash', 12450, 892, 67),
+    ('22222222-2222-2222-2222-222222222222',
+     'BMW M3 dvigatel diagnostikasi',
+     'Dvigatel bilan boglik asosiy nosozliklarni qanday aniqlash. OBD2 skanerlari.',
+     'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+     'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800',
+     2340, 'dvigatel', 8920, 543, 32),
+    ('11111111-1111-1111-1111-111111111111',
+     'Audi RS6 — premium detailing',
+     'Ceramic coating, paint correction, interior detailing.',
+     'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+     'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800',
+     2780, 'detailing', 15670, 1203, 89);

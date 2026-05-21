@@ -1,0 +1,22 @@
+[Unit]
+Description=AvtoMakon API (Go/Fiber)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=avtomakon
+Group=avtomakon
+WorkingDirectory=/opt/avtomakon
+# .env shu papkadan (godotenv) avtomatik yuklanadi
+ExecStart=/opt/avtomakon/api
+Restart=always
+RestartSec=3
+LimitNOFILE=65536
+# Xavfsizlik (ixtiyoriy, qattiqlashtirish)
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

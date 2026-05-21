@@ -1,0 +1,18 @@
+# AvtoMakon API — avtomatik HTTPS (Let's Encrypt orqali)
+# Domeningizni shu yerga yozing (DNS A-record server IP'siga ishora qilsin).
+# Caddy 80/443 portlarini ushlaydi va sertifikatni o'zi oladi/yangilaydi.
+
+api.avtomakon.uz {
+	encode gzip zstd
+
+	# WebSocket (/ws), fayllar (/files/*) va REST — hammasi bitta backendga.
+	# Caddy WebSocket'ni avtomatik proxy qiladi.
+	reverse_proxy 127.0.0.1:8000 {
+		header_up X-Real-IP {remote_host}
+	}
+}
+
+# (Ixtiyoriy) apex domenni api'ga yo'naltirish yoki kelajakdagi sayt uchun:
+# avtomakon.uz, www.avtomakon.uz {
+# 	redir https://api.avtomakon.uz{uri}
+# }

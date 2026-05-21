@@ -1,0 +1,64 @@
+# AvtoMakon — Render.com Blueprint (bepul)
+# Render'da: New > Blueprint > GitHub repo'ni tanlang. Bu fayl avtomatik
+# web xizmat + PostgreSQL bazani yaratadi va ularni bog'laydi.
+
+databases:
+  - name: avtomakon-db
+    plan: free
+    databaseName: avtomakon
+    user: avtomakon
+    # Eslatma: bepul Render Postgres ~30 kundan keyin tugaydi.
+    # Uzoq muddat uchun keyin Supabase/Neon'ga o'tkazish mumkin (DB_* env'larni almashtirib).
+
+services:
+  - type: web
+    name: avtomakon-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      # --- Baza (avtomatik bog'lanadi) ---
+      - key: DB_HOST
+        fromDatabase:
+          name: avtomakon-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: avtomakon-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: avtomakon-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: avtomakon-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: avtomakon-db
+          property: database
+      - key: DB_SSL_MODE
+        value: require
+      # --- JWT (Render avtomatik kuchli qiymat generatsiya qiladi) ---
+      - key: JWT_SECRET
+        generateValue: true
+      # --- Fayl saqlash (Cloudflare R2) — keyin dashboard'da to'ldiriladi ---
+      - key: MINIO_BUCKET
+        value: avtomakon
+      - key: MINIO_USE_SSL
+        value: "true"
+      - key: MINIO_ENDPOINT
+        sync: false
+      - key: MINIO_ACCESS_KEY
+        sync: false
+      - key: MINIO_SECRET_KEY
+        sync: false
+      - key: MINIO_PUBLIC_URL
+        sync: false
+      # --- Boshqa ---
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"

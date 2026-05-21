@@ -1,0 +1,56 @@
+-- AvtoMakon dastlabki sxemani qaytarib olish
+
+DROP TRIGGER IF EXISTS trg_carts_updated_at ON carts;
+DROP TRIGGER IF EXISTS trg_orders_updated_at ON orders;
+DROP TRIGGER IF EXISTS trg_products_updated_at ON products;
+DROP TRIGGER IF EXISTS trg_businesses_updated_at ON businesses;
+DROP TRIGGER IF EXISTS trg_users_updated_at ON users;
+DROP FUNCTION IF EXISTS set_updated_at();
+
+DROP TABLE IF EXISTS reports CASCADE;
+DROP TABLE IF EXISTS audit_logs CASCADE;
+DROP TABLE IF EXISTS uploaded_files CASCADE;
+DROP TABLE IF EXISTS push_tokens CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
+DROP TABLE IF EXISTS conversation_members CASCADE;
+DROP TABLE IF EXISTS conversations CASCADE;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS order_items CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS cart_items CASCADE;
+DROP TABLE IF EXISTS carts CASCADE;
+DROP TABLE IF EXISTS promotions CASCADE;
+DROP TABLE IF EXISTS product_attributes CASCADE;
+DROP TABLE IF EXISTS product_images CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS follows CASCADE;
+DROP TABLE IF EXISTS post_hashtags CASCADE;
+DROP TABLE IF EXISTS hashtags CASCADE;
+DROP TABLE IF EXISTS comment_likes CASCADE;
+DROP TABLE IF EXISTS comments CASCADE;
+DROP TABLE IF EXISTS post_saves CASCADE;
+DROP TABLE IF EXISTS post_likes CASCADE;
+DROP TABLE IF EXISTS post_media CASCADE;
+DROP TABLE IF EXISTS posts CASCADE;
+DROP TABLE IF EXISTS business_services CASCADE;
+DROP TABLE IF EXISTS businesses CASCADE;
+DROP TABLE IF EXISTS business_applications CASCADE;
+DROP TABLE IF EXISTS otp_codes CASCADE;
+DROP TABLE IF EXISTS refresh_tokens CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+DROP TYPE IF EXISTS otp_purpose;
+DROP TYPE IF EXISTS notification_type;
+DROP TYPE IF EXISTS message_type;
+DROP TYPE IF EXISTS conversation_type;
+DROP TYPE IF EXISTS delivery_method;
+DROP TYPE IF EXISTS payment_method;
+DROP TYPE IF EXISTS payment_status;
+DROP TYPE IF EXISTS order_status;
+DROP TYPE IF EXISTS post_visibility;
+DROP TYPE IF EXISTS post_media_type;
+DROP TYPE IF EXISTS application_status;
+DROP TYPE IF EXISTS business_type;
+DROP TYPE IF EXISTS user_role;

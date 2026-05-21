@@ -1,0 +1,19 @@
+[Unit]
+Description=MinIO Object Storage
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=minio-user
+Group=minio-user
+# MUHIM: bu qiymatlar .env dagi MINIO_ACCESS_KEY / MINIO_SECRET_KEY bilan
+# bir xil bo'lishi SHART. Parolni kuchli qilib o'zgartiring.
+Environment=MINIO_ROOT_USER=avtomakon
+Environment=MINIO_ROOT_PASSWORD=__CHANGE_ME_STRONG_MINIO_PAROL__
+ExecStart=/usr/local/bin/minio server /var/lib/minio --address :9000 --console-address :9001
+Restart=always
+RestartSec=3
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

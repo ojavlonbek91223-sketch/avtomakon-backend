@@ -1,0 +1,13 @@
+# Barcha matnli fayllar LF bilan saqlanadi (Linux serverda to'g'ri ishlashi uchun).
+* text=auto eol=lf
+
+# Windows skriptlari CRLF qolsin
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# Binar fayllar
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.gif binary

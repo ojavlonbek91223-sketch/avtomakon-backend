@@ -1,0 +1,28 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+/bin/
+/tmp/
+
+# Test
+*.test
+*.out
+coverage.out
+
+# Env (maxfiy — commit qilinmasin; deploy/.env.production.example istisno)
+.env
+.env.local
+.env.production
+.env.development
+
+# Logs
+*.log
+
+# Air (live reload)
+/tmp/
+
+# IDE
+.idea/
+.vscode/
