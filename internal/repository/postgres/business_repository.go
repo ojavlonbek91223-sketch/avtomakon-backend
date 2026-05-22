@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,18 +22,32 @@ func NewBusinessRepository(pool *pgxpool.Pool) *BusinessRepository {
 // Nearby — radius ichidagi bizneslarni masofa bo'yicha tartibda qaytaradi.
 // PostGIS ST_DWithin (geography) — radius metrda.
 func (r *BusinessRepository) Nearby(ctx context.Context, p domain.NearbyParams) ([]*domain.Business, error) {
-	args := []any{p.Lng, p.Lat, p.RadiusM}
-	whereType := ""
+	// $1 = lng, $2 = lat — masofa hisoblash uchun doim kerak.
+	args := []any{p.Lng, p.Lat}
+	conds := []string{"b.is_active = TRUE"}
+
+	// Matnli qidiruv bo'lsa radiusni e'tiborsiz qoldiramiz (butun bazadan
+	// qidiriladi — foydalanuvchi boshqa shahar/tumandagi joyni ham topa olsin).
+	if p.Query == "" {
+		args = append(args, p.RadiusM)
+		conds = append(conds, fmt.Sprintf(
+			"ST_DWithin(b.location, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, $%d)",
+			len(args)))
+	}
+
 	if p.Type != "" {
 		args = append(args, p.Type)
-		whereType = " AND b.type = $4"
+		conds = append(conds, fmt.Sprintf("b.type = $%d", len(args)))
 	}
-	args = append(args, p.Limit)
 
-	limitParam := "$5"
-	if p.Type == "" {
-		limitParam = "$4"
+	if p.Query != "" {
+		args = append(args, "%"+p.Query+"%")
+		conds = append(conds, fmt.Sprintf(
+			"(b.name ILIKE $%d OR b.address ILIKE $%d)", len(args), len(args)))
 	}
+
+	args = append(args, p.Limit)
+	limitParam := fmt.Sprintf("$%d", len(args))
 
 	query := `
 		SELECT b.id, b.name, b.slug, b.type, b.description, b.phone, b.address,
@@ -43,9 +59,7 @@ func (r *BusinessRepository) Nearby(ctx context.Context, p domain.NearbyParams) 
 		       u.id, u.full_name, u.avatar_url, u.is_verified
 		FROM businesses b
 		JOIN users u ON u.id = b.owner_id
-		WHERE b.is_active = TRUE
-		  AND ST_DWithin(b.location, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, $3)
-		  ` + whereType + `
+		WHERE ` + strings.Join(conds, " AND ") + `
 		ORDER BY meters ASC
 		LIMIT ` + limitParam
 

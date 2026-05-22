@@ -46,11 +46,12 @@ type BusinessOwner struct {
 
 // NearbyParams — xarita so'rovi.
 type NearbyParams struct {
-	Lat         float64
-	Lng         float64
-	RadiusM     int    // metr
-	Type        string // master/seller/"" (barchasi)
-	Limit       int
+	Lat     float64
+	Lng     float64
+	RadiusM int    // metr
+	Type    string // master/seller/"" (barchasi)
+	Query   string // nom / manzil (shahar, viloyat, tuman) bo'yicha qidiruv
+	Limit   int
 }
 
 var ErrBusinessNotFound = postError("biznes topilmadi")

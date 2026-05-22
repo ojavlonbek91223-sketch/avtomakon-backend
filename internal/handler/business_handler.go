@@ -32,6 +32,7 @@ func (h *BusinessHandler) Nearby(c *fiber.Ctx) error {
 
 	radius := c.QueryInt("radius", 10000)
 	bizType := c.Query("type", "")
+	query := c.Query("q", "")
 	limit := c.QueryInt("limit", 50)
 
 	if bizType != "" && bizType != "master" && bizType != "seller" {
@@ -39,7 +40,7 @@ func (h *BusinessHandler) Nearby(c *fiber.Ctx) error {
 	}
 
 	businesses, err := h.svc.Nearby(c.Context(), domain.NearbyParams{
-		Lat: lat, Lng: lng, RadiusM: radius, Type: bizType, Limit: limit,
+		Lat: lat, Lng: lng, RadiusM: radius, Type: bizType, Query: query, Limit: limit,
 	})
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
