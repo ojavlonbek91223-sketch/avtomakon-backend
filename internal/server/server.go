@@ -55,7 +55,7 @@ func New(d *Deps) (*Server, error) {
 		ErrorHandler:          errorHandler(d.Logger),
 		ReadTimeout:           30 * time.Second,
 		WriteTimeout:          30 * time.Second,
-		BodyLimit:             50 * 1024 * 1024, // 50 MB
+		BodyLimit:             60 * 1024 * 1024, // 60 MB (qisqa videolar uchun)
 	})
 
 	app.Use(recover.New())
