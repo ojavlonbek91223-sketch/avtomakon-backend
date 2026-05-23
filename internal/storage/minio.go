@@ -19,6 +19,12 @@ type MinIOClient struct {
 }
 
 func NewMinIOClient(endpoint, accessKey, secretKey, bucket string, useSSL bool, region, publicURL string) (*MinIOClient, error) {
+	// Cloudflare R2 doim "auto" region talab qiladi — aks holda minio-go
+	// GetBucketLocation/HeadBucket'da "Access Denied" oladi.
+	if strings.Contains(endpoint, "r2.cloudflarestorage.com") {
+		region = "auto"
+	}
+
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure: useSSL,
@@ -28,29 +34,24 @@ func NewMinIOClient(endpoint, accessKey, secretKey, bucket string, useSSL bool, 
 		return nil, fmt.Errorf("minio client: %w", err)
 	}
 
-	// Bucket mavjudligini tekshirish va yaratish
+	// Bucket tekshiruvi — XATO BO'LSA HAM davom etamiz. Ba'zi provayderlar/tokenlar
+	// bucket-darajali amalni (HeadBucket) cheklaydi, lekin obyekt yuklash ishlaydi.
+	// Bucket allaqachon yaratilgan deb hisoblaymiz.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	exists, err := client.BucketExists(ctx, bucket)
-	if err != nil {
-		return nil, fmt.Errorf("bucket check: %w", err)
-	}
-	if !exists {
-		if err := client.MakeBucket(ctx, bucket, minio.MakeBucketOptions{}); err != nil {
-			return nil, fmt.Errorf("bucket create: %w", err)
+	if exists, berr := client.BucketExists(ctx, bucket); berr == nil && !exists {
+		if merr := client.MakeBucket(ctx, bucket, minio.MakeBucketOptions{}); merr == nil {
+			policy := fmt.Sprintf(`{
+				"Version": "2012-10-17",
+				"Statement": [{
+					"Effect": "Allow",
+					"Principal": {"AWS": ["*"]},
+					"Action": ["s3:GetObject"],
+					"Resource": ["arn:aws:s3:::%s/*"]
+				}]
+			}`, bucket)
+			_ = client.SetBucketPolicy(ctx, bucket, policy)
 		}
-		// Public read policy
-		policy := fmt.Sprintf(`{
-			"Version": "2012-10-17",
-			"Statement": [{
-				"Effect": "Allow",
-				"Principal": {"AWS": ["*"]},
-				"Action": ["s3:GetObject"],
-				"Resource": ["arn:aws:s3:::%s/*"]
-			}]
-		}`, bucket)
-		_ = client.SetBucketPolicy(ctx, bucket, policy)
 	}
 
 	// Public URL prefiksi: backend proxy (tunnel orqali ishlaydi) yoki
