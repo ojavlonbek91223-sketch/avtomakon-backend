@@ -86,7 +86,7 @@ func main() {
 	if cfg.MinIO.AccessKey != "" && cfg.MinIO.SecretKey != "" {
 		minioClient, err = storage.NewMinIOClient(
 			cfg.MinIO.Endpoint, cfg.MinIO.AccessKey, cfg.MinIO.SecretKey,
-			cfg.MinIO.Bucket, cfg.MinIO.UseSSL, cfg.MinIO.PublicURL,
+			cfg.MinIO.Bucket, cfg.MinIO.UseSSL, cfg.MinIO.Region, cfg.MinIO.PublicURL,
 		)
 		if err != nil {
 			logger.Warn("minio ulanmadi (upload ishlamaydi)", zap.Error(err))

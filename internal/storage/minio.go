@@ -18,10 +18,11 @@ type MinIOClient struct {
 	public string // public URL prefix (CDN bo'lsa, shu ishlatiladi)
 }
 
-func NewMinIOClient(endpoint, accessKey, secretKey, bucket string, useSSL bool, publicURL string) (*MinIOClient, error) {
+func NewMinIOClient(endpoint, accessKey, secretKey, bucket string, useSSL bool, region, publicURL string) (*MinIOClient, error) {
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure: useSSL,
+		Region: region,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("minio client: %w", err)

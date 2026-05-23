@@ -62,8 +62,10 @@ type MinIOConfig struct {
 	SecretKey string
 	Bucket    string
 	UseSSL    bool
+	// Region — S3 provayder regioni (Cloudflare R2 uchun "auto").
+	Region string
 	// PublicURL — backend orqali fayllarni ko'rsatish uchun tashqi manzil
-	// (masalan, Cloudflare Tunnel URL). Bo'sh bo'lsa to'g'ridan-to'g'ri
+	// (masalan, Cloudflare Tunnel yoki Render URL). Bo'sh bo'lsa to'g'ridan-to'g'ri
 	// MinIO endpoint ishlatiladi (faqat lokal tarmoqda ishlaydi).
 	PublicURL string
 }
@@ -105,6 +107,7 @@ func Load() (*Config, error) {
 			SecretKey: getEnv("MINIO_SECRET_KEY", ""),
 			Bucket:    getEnv("MINIO_BUCKET", "avtomakon"),
 			UseSSL:    getEnvBool("MINIO_USE_SSL", false),
+			Region:    getEnv("MINIO_REGION", ""),
 			PublicURL: getEnv("MINIO_PUBLIC_URL", ""),
 		},
 
