@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,9 +29,9 @@ func (h *FileHandler) Serve(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "fayl nomi kerak")
 	}
 
-	obj, info, err := h.minio.Get(c.Context(), objectName)
+	obj, info, err := h.minio.Get(context.Background(), objectName)
 	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound, "fayl topilmadi")
+		return fiber.NewError(fiber.StatusNotFound, "fayl topilmadi: "+err.Error())
 	}
 
 	contentType := info.ContentType
