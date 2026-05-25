@@ -63,6 +63,7 @@ func (s *Server) registerRoutes(d *Deps) {
 	users.Get("/me", requireAuth, d.UserHandler.Me)
 	users.Patch("/me", requireAuth, d.UserHandler.UpdateMe)
 	users.Get("/:id", optionalAuth, d.UserHandler.Get)
+	users.Get("/:id/posts", optionalAuth, d.PostHandler.UserPosts)
 	users.Get("/:id/followers", optionalAuth, d.UserHandler.Followers)
 	users.Get("/:id/following", optionalAuth, d.UserHandler.Following)
 	users.Post("/:id/follow", requireAuth, d.UserHandler.Follow)

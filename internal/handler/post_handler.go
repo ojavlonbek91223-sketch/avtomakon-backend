@@ -83,6 +83,42 @@ func (h *PostHandler) Create(c *fiber.Ctx) error {
 	})
 }
 
+// UserPosts — GET /users/:id/posts — foydalanuvchining postlari (profil grid'i uchun)
+func (h *PostHandler) UserPosts(c *fiber.Ctx) error {
+	id, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "noto'g'ri ID")
+	}
+
+	limit := c.QueryInt("limit", 21)
+
+	var cursor *time.Time
+	if raw := c.Query("cursor"); raw != "" {
+		t, err := decodeCursor(raw)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "cursor noto'g'ri")
+		}
+		cursor = &t
+	}
+
+	var viewerID *uuid.UUID
+	if vid, ok := middleware.GetUserID(c); ok {
+		viewerID = &vid
+	}
+
+	result, err := h.svc.ListByUser(c.Context(), id, viewerID, cursor, limit)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	meta := fiber.Map{"has_more": result.HasMore}
+	if result.NextCursor != nil {
+		meta["next_cursor"] = encodeCursor(*result.NextCursor)
+	}
+
+	return c.JSON(fiber.Map{"data": result.Posts, "meta": meta})
+}
+
 // Delete — DELETE /posts/:id
 func (h *PostHandler) Delete(c *fiber.Ctx) error {
 	userID, ok := middleware.GetUserID(c)
