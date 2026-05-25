@@ -49,7 +49,7 @@ func (r *PostRepository) Create(ctx context.Context, in CreatePostDBInput) (uuid
 		        CASE WHEN $6::float8 IS NOT NULL AND $7::float8 IS NOT NULL
 		             THEN ST_SetSRID(ST_MakePoint($7, $6), 4326)::geography
 		             ELSE NULL END,
-		        COALESCE($8, 'public'))
+		        COALESCE($8, 'public')::post_visibility)
 		RETURNING id
 	`
 	err = tx.QueryRow(ctx, postQuery,
