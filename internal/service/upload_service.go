@@ -28,14 +28,20 @@ const (
 )
 
 var allowedMimes = map[string]bool{
-	"image/jpeg":      true,
-	"image/jpg":       true,
-	"image/png":       true,
-	"image/webp":      true,
-	"image/gif":       true,
-	"video/mp4":       true,
-	"video/quicktime": true,
-	"application/pdf": true,
+	"image/jpeg":       true,
+	"image/jpg":        true,
+	"image/png":        true,
+	"image/webp":       true,
+	"image/gif":        true,
+	"image/heic":       true, // iPhone/Samsung kameralar
+	"image/heif":       true,
+	"image/avif":       true,
+	"video/mp4":        true,
+	"video/quicktime":  true,
+	"video/3gpp":       true,
+	"video/webm":       true,
+	"video/x-matroska": true,
+	"application/pdf":  true,
 }
 
 var allowedPurposes = map[string]bool{
@@ -100,11 +106,13 @@ func (s *UploadService) Upload(ctx context.Context, in storage.UploadInput) (*Up
 
 func isImage(mime string) bool {
 	return mime == "image/jpeg" || mime == "image/jpg" || mime == "image/png" ||
-		mime == "image/webp" || mime == "image/gif"
+		mime == "image/webp" || mime == "image/gif" || mime == "image/heic" ||
+		mime == "image/heif" || mime == "image/avif"
 }
 
 func isVideo(mime string) bool {
-	return mime == "video/mp4" || mime == "video/quicktime"
+	return mime == "video/mp4" || mime == "video/quicktime" ||
+		mime == "video/3gpp" || mime == "video/webm" || mime == "video/x-matroska"
 }
 
 func isDocument(mime string) bool {

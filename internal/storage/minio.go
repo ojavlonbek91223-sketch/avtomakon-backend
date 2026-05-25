@@ -130,10 +130,22 @@ func extensionFromMime(mime, originalName string) string {
 		return ".webp"
 	case "image/gif":
 		return ".gif"
+	case "image/heic":
+		return ".heic"
+	case "image/heif":
+		return ".heif"
+	case "image/avif":
+		return ".avif"
 	case "video/mp4":
 		return ".mp4"
 	case "video/quicktime":
 		return ".mov"
+	case "video/3gpp":
+		return ".3gp"
+	case "video/webm":
+		return ".webm"
+	case "video/x-matroska":
+		return ".mkv"
 	case "application/pdf":
 		return ".pdf"
 	}
