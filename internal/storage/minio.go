@@ -72,19 +72,15 @@ func NewMinIOClient(endpoint, accessKey, secretKey, bucket string, useSSL bool, 
 	}, nil
 }
 
-// Get — obyektni MinIO'dan o'qiydi (backend proxy uchun).
-// Qaytarilgan obyektni chaqiruvchi yopishi shart.
-func (m *MinIOClient) Get(ctx context.Context, objectName string) (*minio.Object, minio.ObjectInfo, error) {
-	obj, err := m.client.GetObject(ctx, m.bucket, objectName, minio.GetObjectOptions{})
+// PresignedGet — obyekt uchun vaqtinchalik imzolangan URL qaytaradi.
+// Telefon shu URL orqali to'g'ridan-to'g'ri R2'dan oladi (backend trafigi tejaladi,
+// R2 HEAD/Stat cheklovi chetlab o'tiladi).
+func (m *MinIOClient) PresignedGet(ctx context.Context, objectName string, expiry time.Duration) (string, error) {
+	u, err := m.client.PresignedGetObject(ctx, m.bucket, objectName, expiry, nil)
 	if err != nil {
-		return nil, minio.ObjectInfo{}, err
+		return "", err
 	}
-	info, err := obj.Stat()
-	if err != nil {
-		_ = obj.Close()
-		return nil, minio.ObjectInfo{}, err
-	}
-	return obj, info, nil
+	return u.String(), nil
 }
 
 type UploadInput struct {

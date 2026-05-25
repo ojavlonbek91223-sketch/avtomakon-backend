@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -29,18 +30,10 @@ func (h *FileHandler) Serve(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "fayl nomi kerak")
 	}
 
-	obj, info, err := h.minio.Get(context.Background(), objectName)
+	// Imzolangan vaqtinchalik R2 havolasini yaratamiz va telefonni unga yo'naltiramiz.
+	url, err := h.minio.PresignedGet(context.Background(), objectName, 24*time.Hour)
 	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound, "fayl topilmadi: "+err.Error())
+		return fiber.NewError(fiber.StatusNotFound, "fayl topilmadi")
 	}
-
-	contentType := info.ContentType
-	if contentType == "" {
-		contentType = "application/octet-stream"
-	}
-	c.Set(fiber.HeaderContentType, contentType)
-	c.Set(fiber.HeaderCacheControl, "public, max-age=31536000, immutable")
-
-	// SendStream obyekt io.Closer bo'lgani uchun o'qib bo'lgach uni yopadi.
-	return c.SendStream(obj, int(info.Size))
+	return c.Redirect(url, fiber.StatusFound)
 }
