@@ -97,6 +97,27 @@ func (s *PostService) ListFeed(ctx context.Context, kind domain.FeedKind, viewer
 	return result, nil
 }
 
+func (s *PostService) ListSaved(ctx context.Context, userID uuid.UUID, cursor *time.Time, limit int) (*domain.FeedResult, error) {
+	if limit <= 0 || limit > 50 {
+		limit = 21
+	}
+
+	posts, err := s.repo.ListSaved(ctx, userID, cursor, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &domain.FeedResult{Posts: posts}
+	if len(posts) > limit {
+		result.HasMore = true
+		result.Posts = posts[:limit]
+		next := posts[limit-1].CreatedAt
+		result.NextCursor = &next
+	}
+
+	return result, nil
+}
+
 func (s *PostService) ListByUser(ctx context.Context, userID uuid.UUID, viewerID *uuid.UUID, cursor *time.Time, limit int) (*domain.FeedResult, error) {
 	if limit <= 0 || limit > 50 {
 		limit = 21

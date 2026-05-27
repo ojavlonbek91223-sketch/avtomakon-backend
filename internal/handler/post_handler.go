@@ -83,6 +83,37 @@ func (h *PostHandler) Create(c *fiber.Ctx) error {
 	})
 }
 
+// SavedPosts — GET /posts/saved — joriy foydalanuvchi saqlagan postlari
+func (h *PostHandler) SavedPosts(c *fiber.Ctx) error {
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		return fiber.NewError(fiber.StatusUnauthorized, "auth kerak")
+	}
+
+	limit := c.QueryInt("limit", 21)
+
+	var cursor *time.Time
+	if raw := c.Query("cursor"); raw != "" {
+		t, err := decodeCursor(raw)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "cursor noto'g'ri")
+		}
+		cursor = &t
+	}
+
+	result, err := h.svc.ListSaved(c.Context(), userID, cursor, limit)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	meta := fiber.Map{"has_more": result.HasMore}
+	if result.NextCursor != nil {
+		meta["next_cursor"] = encodeCursor(*result.NextCursor)
+	}
+
+	return c.JSON(fiber.Map{"data": result.Posts, "meta": meta})
+}
+
 // UserPosts — GET /users/:id/posts — foydalanuvchining postlari (profil grid'i uchun)
 func (h *PostHandler) UserPosts(c *fiber.Ctx) error {
 	id, err := uuid.Parse(c.Params("id"))
