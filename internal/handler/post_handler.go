@@ -83,6 +83,37 @@ func (h *PostHandler) Create(c *fiber.Ctx) error {
 	})
 }
 
+// ListVideos — GET /posts/videos — faqat video media_type'li postlar
+func (h *PostHandler) ListVideos(c *fiber.Ctx) error {
+	limit := c.QueryInt("limit", 21)
+
+	var cursor *time.Time
+	if raw := c.Query("cursor"); raw != "" {
+		t, err := decodeCursor(raw)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "cursor noto'g'ri")
+		}
+		cursor = &t
+	}
+
+	var viewerID *uuid.UUID
+	if vid, ok := middleware.GetUserID(c); ok {
+		viewerID = &vid
+	}
+
+	result, err := h.svc.ListVideos(c.Context(), viewerID, cursor, limit)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	meta := fiber.Map{"has_more": result.HasMore}
+	if result.NextCursor != nil {
+		meta["next_cursor"] = encodeCursor(*result.NextCursor)
+	}
+
+	return c.JSON(fiber.Map{"data": result.Posts, "meta": meta})
+}
+
 // SavedPosts — GET /posts/saved — joriy foydalanuvchi saqlagan postlari
 func (h *PostHandler) SavedPosts(c *fiber.Ctx) error {
 	userID, ok := middleware.GetUserID(c)

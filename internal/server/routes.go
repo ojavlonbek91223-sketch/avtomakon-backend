@@ -47,6 +47,7 @@ func (s *Server) registerRoutes(d *Deps) {
 	posts := api.Group("/posts")
 	posts.Get("/", optionalAuth, d.PostHandler.ListFeed)
 	posts.Get("/saved", requireAuth, d.PostHandler.SavedPosts)
+	posts.Get("/videos", optionalAuth, d.PostHandler.ListVideos)
 	posts.Post("/", requireAuth, d.PostHandler.Create)
 	posts.Delete("/:id", requireAuth, d.PostHandler.Delete)
 	posts.Post("/:id/react", requireAuth, d.PostHandler.SetReaction)

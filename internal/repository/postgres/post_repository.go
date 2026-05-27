@@ -195,6 +195,84 @@ func (r *PostRepository) ListFeed(ctx context.Context, kind domain.FeedKind, vie
 	return posts, nil
 }
 
+// ListVideos — faqat video media_type'li public postlar (videolar ekrani uchun).
+func (r *PostRepository) ListVideos(ctx context.Context, viewerID *uuid.UUID, cursor *time.Time, limit int) ([]*domain.Post, error) {
+	args := []any{}
+	where := "p.deleted_at IS NULL AND p.is_published = TRUE AND p.visibility = 'public' AND p.media_type = 'video'"
+	if cursor != nil {
+		args = append(args, *cursor)
+		where += " AND p.created_at < $" + itoa(len(args))
+	}
+	args = append(args, limit+1)
+	limitParam := "$" + itoa(len(args))
+
+	query := `
+		SELECT p.id, p.author_id, p.caption, p.media_type, p.cover_url,
+		       p.location_name, p.visibility,
+		       p.thumbs_up_count + p.ok_count + p.handshake_count + p.thumbs_down_count AS reactions_total,
+		       p.thumbs_up_count, p.ok_count, p.handshake_count, p.thumbs_down_count,
+		       p.comments_count, p.saves_count, p.shares_count,
+		       p.created_at,
+		       u.username, u.full_name, u.avatar_url, u.is_verified, u.is_business
+		FROM posts p
+		JOIN users u ON u.id = p.author_id AND u.deleted_at IS NULL
+		WHERE ` + where + `
+		ORDER BY p.created_at DESC
+		LIMIT ` + limitParam
+
+	rows, err := r.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []*domain.Post
+	var postIDs []uuid.UUID
+	for rows.Next() {
+		var p domain.Post
+		var author domain.PostAuthor
+		var authorID uuid.UUID
+		err := rows.Scan(
+			&p.ID, &authorID, &p.Caption, &p.MediaType, &p.CoverURL,
+			&p.LocationName, &p.Visibility,
+			&p.Stats.Reactions, &p.Stats.ThumbsUp, &p.Stats.OK,
+			&p.Stats.Handshake, &p.Stats.ThumbsDown,
+			&p.Stats.Comments, &p.Stats.Saves, &p.Stats.Shares,
+			&p.CreatedAt,
+			&author.Username, &author.FullName, &author.AvatarURL,
+			&author.IsVerified, &author.IsBusiness,
+		)
+		if err != nil {
+			return nil, err
+		}
+		author.ID = authorID
+		p.Author = &author
+		p.Hashtags = []string{}
+		p.Media = []domain.PostMedia{}
+		posts = append(posts, &p)
+		postIDs = append(postIDs, p.ID)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if len(posts) == 0 {
+		return posts, nil
+	}
+
+	if err := r.loadMediaForPosts(ctx, posts, postIDs); err != nil {
+		return nil, err
+	}
+	if err := r.loadHashtagsForPosts(ctx, posts, postIDs); err != nil {
+		return nil, err
+	}
+	if viewerID != nil {
+		if err := r.loadViewerForPosts(ctx, posts, postIDs, *viewerID); err != nil {
+			return nil, err
+		}
+	}
+	return posts, nil
+}
+
 // ListByUser — bitta foydalanuvchining postlari (eng yangi birinchi).
 // viewerID == userID bo'lsa barcha postlar; aks holda faqat public.
 func (r *PostRepository) ListByUser(ctx context.Context, userID uuid.UUID, viewerID *uuid.UUID, cursor *time.Time, limit int) ([]*domain.Post, error) {
