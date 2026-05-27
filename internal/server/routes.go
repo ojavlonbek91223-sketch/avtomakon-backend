@@ -71,6 +71,11 @@ func (s *Server) registerRoutes(d *Deps) {
 	users.Post("/:id/follow", requireAuth, d.UserHandler.Follow)
 	users.Delete("/:id/follow", requireAuth, d.UserHandler.Unfollow)
 
+	// ----- LONG VIDEOS (Videolar ekrani — faqat ustalar/sotuvchilar joylaydi) -----
+	api.Get("/videos", optionalAuth, d.VideoHandler.List)
+	api.Get("/videos/:id", optionalAuth, d.VideoHandler.Get)
+	api.Post("/videos", requireAuth, d.VideoHandler.Create)
+
 	// ----- BIZNES ARIZA -----
 	api.Post("/business-applications", requireAuth, d.BusinessApplicationHandler.Apply)
 	api.Get("/business-applications/mine", requireAuth, d.BusinessApplicationHandler.Mine)
